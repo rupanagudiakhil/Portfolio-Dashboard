@@ -19,7 +19,7 @@ const MOCK_PORTFOLIO: StockData[] = [
     exchange: 'NSE',
     sector: 'Technology',
   },
-    {
+  {
     stockName: 'HDFCBANK.NS',
     stockGoogle: 'HDFCBANK',
     purchasePrice: 1500,
@@ -31,24 +31,31 @@ const MOCK_PORTFOLIO: StockData[] = [
 
 export default function PortfolioTable() {
   const [data, setData] = useState<StockData[]>(MOCK_PORTFOLIO);
+  const [loading, setLoading] = useState(true);
 
   const updateData = async () => {
-    const updated = await Promise.all(
-      data.map(async (stock) => {
-        const [cmpRes, googleRes] = await Promise.all([
-          fetch(`/api/yahoo?symbol=${stock.stockName}`).then(res => res.json()),
-          fetch(`/api/google?symbol=${stock.stockGoogle}`).then(res => res.json()),
-        ]);
-        
-        return {
-          ...stock,
-          cmp: cmpRes.cmp,
-          peRatio: googleRes.peRatio,
-          latestEarnings: googleRes.earnings,
-        };
-      })
-    );
-    setData(updated);
+    try {
+      const updated = await Promise.all(
+        data.map(async (stock) => {
+          const [cmpRes, googleRes] = await Promise.all([
+            fetch(/api/yahoo?symbol=${stock.stockName}).then((res) => res.json()),
+            fetch(/api/google?symbol=${stock.stockGoogle}).then((res) => res.json()),
+          ]);
+
+          return {
+            ...stock,
+            cmp: cmpRes.cmp,
+            peRatio: googleRes.peRatio,
+            latestEarnings: googleRes.earnings,
+          };
+        })
+      );
+      setData(updated);
+    } catch (error) {
+      console.error('Failed to fetch stock data:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -56,6 +63,14 @@ export default function PortfolioTable() {
     const interval = setInterval(updateData, 15000);
     return () => clearInterval(interval);
   }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-10">
+        <span className="text-gray-600 text-lg">Loading portfolio data...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="overflow-x-auto">
@@ -102,3 +117,4 @@ export default function PortfolioTable() {
     </div>
   );
 }
+   
