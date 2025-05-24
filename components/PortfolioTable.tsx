@@ -74,18 +74,19 @@ export default function PortfolioTable() {
 
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full border text-sm">
-        <thead className="bg-gray-200 text-left">
+     {/* <table className="min-w-full border text-sm"> */}
+      <table className="min-w-full border-collapse border border-gray-300">
+        <thead className="bg-blue-200 text-left">
           <tr>
-            <th className="p-2">Stock</th>
-            <th className="p-2">Qty</th>
-            <th className="p-2">Purchase Price</th>
-            <th className="p-2">Investment</th>
-            <th className="p-2">CMP</th>
-            <th className="p-2">Present Value</th>
-            <th className="p-2">Gain/Loss</th>
-            <th className="p-2">P/E</th>
-            <th className="p-2">Earnings</th>
+            <th className="p-2 border-1">Stock</th>
+            <th className="p-2 border-1">Qty</th>
+            <th className="p-2 border-1">Purchase Price</th>
+            <th className="p-2 border-1">Investment</th>
+            <th className="p-2 border-1">CMP</th>
+            <th className="p-2 border-1">Present Value</th>
+            <th className="p-2 border-1">Gain/Loss</th>
+            <th className="p-2 border-1">P/E</th>
+            <th className="p-2 border-1">Earnings</th>
           </tr>
         </thead>
         <tbody>
@@ -93,22 +94,22 @@ export default function PortfolioTable() {
             const investment = stock.quantity * stock.purchasePrice;
             const presentValue = (stock.cmp ?? 0) * stock.quantity;
             const gainLoss = presentValue - investment;
-            const gainLossClass = classNames('p-2', {
+            const gainLossClass = classNames('p-2 border-1  border-black', {
               'text-green-600': gainLoss > 0,
               'text-red-600': gainLoss < 0,
             });
 
             return (
-              <tr key={stock.stockName} className="border-t">
-                <td className="p-2">{stock.stockName}</td>
-                <td className="p-2">{stock.quantity}</td>
-                <td className="p-2">{stock.purchasePrice}</td>
-                <td className="p-2">{investment.toFixed(2)}</td>
-                <td className="p-2">{stock.cmp?.toFixed(2)}</td>
-                <td className="p-2">{presentValue.toFixed(2)}</td>
+            <tr key={stock.stockName} className="border-t">
+                <td className="p-2 border-1">{stock.stockName}</td>
+                <td className="p-2 border-1">{stock.quantity}</td>
+                <td className="p-2 border-1">{stock.purchasePrice}</td>
+                <td className="p-2 border-1">{investment.toFixed(2)}</td>
+                <td className="p-2 border-1">{stock.cmp?.toFixed(2)}</td>
+                <td className="p-2 border-1">{presentValue.toFixed(2)}</td>
                 <td className={gainLossClass}>{gainLoss.toFixed(2)}</td>
-                <td className="p-2">{stock.peRatio}</td>
-                <td className="p-2">{stock.latestEarnings}</td>
+                <td className="p-2 border-1">{stock.peRatio}</td>
+                <td className="p-2 border-1">{stock.latestEarnings}</td>
               </tr>
             );
           })}
