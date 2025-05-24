@@ -38,8 +38,8 @@ export default function PortfolioTable() {
       const updated = await Promise.all(
         data.map(async (stock) => {
           const [cmpRes, googleRes] = await Promise.all([
-            fetch(/api/yahoo?symbol=${stock.stockName}).then((res) => res.json()),
-            fetch(/api/google?symbol=${stock.stockGoogle}).then((res) => res.json()),
+            fetch(`/api/yahoo?symbol=${stock.stockName}`).then((res) => res.json()),
+            fetch(`/api/google?symbol=${stock.stockGoogle}`).then((res) => res.json()),
           ]);
 
           return {
@@ -117,4 +117,3 @@ export default function PortfolioTable() {
     </div>
   );
 }
-   
