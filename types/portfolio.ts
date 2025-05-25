@@ -8,5 +8,6 @@ export interface StockData {
     cmp?: number;
     peRatio?: number;
     latestEarnings?: number;
+    logourl?:string;
   }
   

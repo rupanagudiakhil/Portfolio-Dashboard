@@ -11,7 +11,6 @@ const MOCK_PORTFOLIO: StockData[] = [
     quantity: 10,
     exchange: 'NSE',
     sector: 'Technology',
-    logourl: '/logos/tcs.png',
   },
   {
     stockName: 'INFY.NS',
@@ -20,7 +19,6 @@ const MOCK_PORTFOLIO: StockData[] = [
     quantity: 20,
     exchange: 'NSE',
     sector: 'Technology',
-    logourl: 'logos/infosys.png',
   },
   {
     stockName: 'HDFCBANK.NS',
@@ -29,7 +27,6 @@ const MOCK_PORTFOLIO: StockData[] = [
     quantity: 20,
     exchange: 'NSE',
     sector: 'Financials',
-    logourl: 'logos/hdfc_bank.png',
   },
   {
     stockName: 'ICICIBANK.NS',
@@ -38,7 +35,6 @@ const MOCK_PORTFOLIO: StockData[] = [
     quantity: 20,
     exchange: 'NSE',
     sector: 'Financials',
-    logourl: 'logos/icici_bank.png',
   },
   {
     stockName: 'WIPRO.NS',
@@ -47,7 +43,6 @@ const MOCK_PORTFOLIO: StockData[] = [
     quantity: 20,
     exchange: 'NSE',
     sector: 'Technology',
-    logourl: 'logos/wipro.png'
   },
   {
     stockName: 'SBIN.NS',
@@ -56,7 +51,6 @@ const MOCK_PORTFOLIO: StockData[] = [
     quantity: 20,
     exchange: 'NSE',
     sector: 'Financials',
-    logourl: 'logos/state_bank_of_india.png'
   },
   {
     stockName: 'YESBANK.NS',
@@ -65,7 +59,6 @@ const MOCK_PORTFOLIO: StockData[] = [
     quantity: 20,
     exchange: 'NSE',
     sector: 'Financials',
-    logourl: 'logos/yes_bank.png'
   },
   {
     stockName: 'RELIANCE.NS',
@@ -74,7 +67,6 @@ const MOCK_PORTFOLIO: StockData[] = [
     quantity: 10,
     exchange: 'NSE',
     sector: 'Industrial',
-    logourl: 'logos/reliance_industries.png'
   },
   {
     stockName: 'TATAMOTORS.NS',
@@ -83,25 +75,53 @@ const MOCK_PORTFOLIO: StockData[] = [
     quantity: 20,
     exchange: 'NSE',
     sector: 'Automotive',
-    logourl: 'logos/tata_motors.png'
   }
+  /*
+    {
+    stockName: 'BRITANNIA.NS',
+    stockGoogle: 'BRITANNIA',
+    purchasePrice: 5486,
+    quantity: 20,
+    exchange: 'NSE',
+    sector: 'Industrial',
+  },
+  {
+    stockName: 'HINDUNILVR.NS',
+    stockGoogle: 'HINDUNILVR',
+    purchasePrice: 2359,
+    quantity: 20,
+    exchange: 'NSE',
+    sector: 'Industrial',
+  },
+  {
+    stockName: 'TATAPOWER.NS',
+    stockGoogle: 'TATAPOWER',
+    purchasePrice: 401,
+    quantity: 20,
+    exchange: 'NSE',
+    sector: 'Energy',
+  },
+  {
+    stockName: 'ADANIGREEN.NS',
+    stockGoogle: 'ADANIGREEN',
+    purchasePrice: 986,
+    quantity: 20,
+    exchange: 'NSE',
+    sector: 'Energy',
+  },
+  {
+    stockName: 'EICHERMOT.NS',
+    stockGoogle: 'EICHERMOT',
+    purchasePrice: 5390,
+    quantity: 20,
+    exchange: 'NSE',
+    sector: 'Automotive',
+  } */
 ];
-
-function getSectorSummary(data: StockData[]) {
-  const summary: Record<string, number> = {};
-
-  data.forEach((stock) => {
-    const investment = stock.quantity * stock.purchasePrice;
-    summary[stock.sector] = (summary[stock.sector] || 0) + investment;
-  });
-
-  return Object.entries(summary).map(([sector, total]) => ({ sector, total }));
-}
 
 export default function PortfolioTable() {
   const [data, setData] = useState<StockData[]>(MOCK_PORTFOLIO);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
 
   const updateData = async () => {
     try {
@@ -134,10 +154,6 @@ export default function PortfolioTable() {
     return () => clearInterval(interval);
   }, []);
 
-  const filteredData = data.filter((stock) =>
-    stock.stockName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   if (loading) {
     return (
       <div className="flex justify-center items-center py-10">
@@ -147,60 +163,45 @@ export default function PortfolioTable() {
   }
 
   return (
-    <div className="overflow-x-auto p-4">
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Search stock..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full md:w-1/3 border border-gray-300 rounded p-2"
-        />
-      </div>
-
-      <table className="min-w-full border-collapse border border-gray-300 text-sm">
+    <div className="overflow-x-auto">
+      {/* <table className="min-w-full border text-sm"> */}
+      <table className="min-w-full border-collapse border border-gray-300">
         <thead className="bg-blue-200 text-left">
           <tr>
-            <th className="p-2 border">Stock</th>
-            <th className="p-2 border">Qty</th>
-            <th className="p-2 border">Purchase Price</th>
-            <th className="p-2 border">Investment</th>
-            <th className="p-2 border">CMP</th>
-            <th className="p-2 border">Present Value</th>
-            <th className="p-2 border">Gain/Loss</th>
-            <th className="p-2 border">P/E</th>
-            <th className="p-2 border">Earnings</th>
+            <th className="p-2 border-1">Stock</th>
+            <th className="p-2 border-1">Qty</th>
+            <th className="p-2 border-1">Purchase Price</th>
+            <th className="p-2 border-1">Investment</th>
+            <th className="p-2 border-1">CMP</th>
+            <th className="p-2 border-1">Present Value</th>
+            <th className="p-2 border-1">Gain/Loss</th>
+            <th className="p-2 border-1">P/E</th>
+            <th className="p-2 border-1">Earnings</th>
           </tr>
         </thead>
         <tbody>
-          {filteredData.map((stock) => {
+          {data.map((stock) => {
             const investment = stock.quantity * stock.purchasePrice;
             const presentValue = (stock.cmp ?? 0) * stock.quantity;
             const gainLoss = presentValue - investment;
-            const gainLossClass = classNames('p-2 border text-sm border-black', {
+            const gainLossClass = classNames('p-2 border-1  border-black', {
               'text-green-600': gainLoss > 0,
               'text-red-600': gainLoss < 0,
             });
 
             return (
               <tr key={stock.stockName} className="border-t">
-                { /*}<td className="p-2 border"><img src={stock.logourl}/>{stock.stockName}</td>*/}
-                <td className="p-2 border">
-                  <div className="flex items-center gap-2">
-                    <img
-                      src={stock.logourl}
-                      alt={stock.stockName}
-                      className="w-6 h-6 object-contain"
-                    />
-                    <span>{stock.stockName}</span>
-                  </div>
-                </td>
-
-                <td className="p-2 border">{stock.quantity}</td>
-                <td className="p-2 border">{stock.purchasePrice}</td>
-                <td className="p-2 border">{investment.toFixed(2)}</td>
-                <td className="p-2 border">{stock.cmp?.toFixed(2)}</td>
-                <td className="p-2 border">{presentValue.toFixed(2)}</td>
+                <td className="p-2 border-1">{stock.stockName}</td>
+                <td className="p-2 border-1">{stock.quantity}</td>
+                <td className="p-2 border-1">{stock.purchasePrice}</td>
+                <td className="p-2 border-1">{investment.toFixed(2)}</td>
+                <td className="p-2 border-1">{stock.cmp?.toFixed(2)}</td>
+                <td className="p-2 border-1">{presentValue.toFixed(2)}</td>
+                {/* <td className={gainLossClass}>{gainLoss.toFixed(2)}
+<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7 7 7M12 3v18" />
+</svg>
+</td> */}
                 <td className={gainLossClass}>
                   {gainLoss.toFixed(2)}
                   {gainLoss > 0 && (
@@ -214,40 +215,15 @@ export default function PortfolioTable() {
                     </svg>
                   )}
                 </td>
-                <td className="p-2 border">{stock.peRatio}</td>
-                <td className="p-2 border">{stock.latestEarnings}</td>
+
+                <td className="p-2 border-1">{stock.peRatio}</td>
+                <td className="p-2 border-1">{stock.latestEarnings}</td>
               </tr>
             );
           })}
         </tbody>
       </table>
-
-      <h2 className="text-xl font-semibold mt-10 mb-4">Sector Distribution</h2>
-
-      <div className="flex flex-col lg:flex-row gap-6">
-        <div className="lg:w-1/2 w-full">
-          <SectorPieChart data={data} />
-        </div>
-
-        <div className="lg:w-1/2 w-full overflow-x-auto">
-          <table className="min-w-full border border-gray-300">
-            <thead className="bg-green-200 text-left">
-              <tr>
-                <th className="p-2 border">Sector</th>
-                <th className="p-2 border">Total Investment</th>
-              </tr>
-            </thead>
-            <tbody>
-              {getSectorSummary(data).map(({ sector, total }) => (
-                <tr key={sector}>
-                  <td className="p-2 border">{sector}</td>
-                  <td className="p-2 border">{total.toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <SectorPieChart data={data} />
     </div>
   );
 }
