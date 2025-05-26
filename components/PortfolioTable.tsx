@@ -88,14 +88,41 @@ const MOCK_PORTFOLIO: StockData[] = [
 ];
 
 function getSectorSummary(data: StockData[]) {
-  const summary: Record<string, number> = {};
+  const summary: Record<string, { investment: number; currentValue: number }> = {};
 
   data.forEach((stock) => {
     const investment = stock.quantity * stock.purchasePrice;
-    summary[stock.sector] = (summary[stock.sector] || 0) + investment;
+    const currentValue = (stock.cmp ?? 0) * stock.quantity;
+
+    if (!summary[stock.sector]) {
+      summary[stock.sector] = { investment: 0, currentValue: 0 };
+    }
+
+    summary[stock.sector].investment += investment;
+    summary[stock.sector].currentValue += currentValue;
   });
 
-  return Object.entries(summary).map(([sector, total]) => ({ sector, total }));
+  return Object.entries(summary).map(([sector, { investment, currentValue }]) => ({
+    sector,
+    investment,
+    currentValue,
+    gainLoss: currentValue - investment,
+  }));
+}
+
+function getTopMovers(data: StockData[], count = 5) {
+  const sorted = [...data]
+    .filter(stock => stock.cmp !== undefined)
+    .map(stock => ({
+      ...stock,
+      gainLoss: (stock.cmp! * stock.quantity) - (stock.purchasePrice * stock.quantity),
+    }))
+    .sort((a, b) => b.gainLoss - a.gainLoss);
+
+  return {
+    gainers: sorted.slice(0, count),
+    losers: sorted.slice(-count).reverse()
+  };
 }
 
 export default function PortfolioTable() {
@@ -138,6 +165,8 @@ export default function PortfolioTable() {
     stock.stockName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const { gainers, losers } = getTopMovers(data);
+
   if (loading) {
     return (
       <div className="flex justify-center items-center py-10">
@@ -158,6 +187,7 @@ export default function PortfolioTable() {
         />
       </div>
 
+      {/* Portfolio Table */}
       <table className="min-w-full border-collapse border border-gray-300 text-sm">
         <thead className="bg-blue-200 text-left">
           <tr>
@@ -184,7 +214,6 @@ export default function PortfolioTable() {
 
             return (
               <tr key={stock.stockName} className="border-t">
-                { /*}<td className="p-2 border"><img src={stock.logourl}/>{stock.stockName}</td>*/}
                 <td className="p-2 border">
                   <div className="flex items-center gap-2">
                     <img
@@ -195,7 +224,6 @@ export default function PortfolioTable() {
                     <span>{stock.stockName}</span>
                   </div>
                 </td>
-
                 <td className="p-2 border">{stock.quantity}</td>
                 <td className="p-2 border">{stock.purchasePrice}</td>
                 <td className="p-2 border">{investment.toFixed(2)}</td>
@@ -222,30 +250,70 @@ export default function PortfolioTable() {
         </tbody>
       </table>
 
+      {/* Sector Pie + Sector Table */}
       <h2 className="text-xl font-semibold mt-10 mb-4">Sector Distribution</h2>
-
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="lg:w-1/2 w-full">
           <SectorPieChart data={data} />
         </div>
-
         <div className="lg:w-1/2 w-full overflow-x-auto">
           <table className="min-w-full border border-gray-300">
             <thead className="bg-green-200 text-left">
               <tr>
                 <th className="p-2 border">Sector</th>
                 <th className="p-2 border">Total Investment</th>
+                <th className="p-2 border">Gain/Loss</th>
               </tr>
             </thead>
             <tbody>
-              {getSectorSummary(data).map(({ sector, total }) => (
+              {getSectorSummary(data).map(({ sector, investment, gainLoss }) => (
                 <tr key={sector}>
                   <td className="p-2 border">{sector}</td>
-                  <td className="p-2 border">{total.toFixed(2)}</td>
+                  <td className="p-2 border">₹{investment.toFixed(2)}</td>
+                  <td className={classNames("p-2 border", {
+                    "text-green-600": gainLoss > 0,
+                    "text-red-600": gainLoss < 0,
+                  })}>
+                    ₹{gainLoss.toFixed(2)}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* Top Gainers and Losers */}
+      <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h3 className="text-lg font-bold mb-2 text-green-600 flex items-center">
+            Top 5 Gainers
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7 7 7M12 3v18" />
+            </svg>
+          </h3>
+          <ul className="space-y-1">
+            {gainers.map(stock => (
+              <li key={stock.stockName} className="border p-2 rounded bg-green-50">
+                <span className="font-semibold">{stock.stockName}</span>: ₹{stock.gainLoss.toFixed(2)}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h3 className="text-lg font-bold mb-2 text-red-600">Top 5 Losers
+            <svg xmlns="http://www.w3.org/2000/svg" className="inline h-5 w-5 ml-1 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7-7-7M12 21V3" />
+                    </svg>
+          </h3>
+
+          <ul className="space-y-1">
+            {losers.map(stock => (
+              <li key={stock.stockName} className="border p-2 rounded bg-red-50">
+                <span className="font-semibold">{stock.stockName}</span>: ₹{stock.gainLoss.toFixed(2)}
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>
